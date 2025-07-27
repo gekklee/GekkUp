@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# I'd recommend moving this script to /usr/bin/ so you can run it from anywhere.
+# Make sure to give it execute permissions with: chmod +x /usr/bin/GekkUp
+
+sudo -v
+
+# Keep alive
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
+
+# This is what I use to update my EndeavourOS system, the script can be modified to suit your needs.
+
+echo "Updating Flatpaks..."
+flatpak update -y
+
+echo "Refreshing mirrors..."
+yay -Syy --noconfirm
+
+echo "Updating packages..."
+yay -Syu --noconfirm
