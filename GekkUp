@@ -1,20 +1,50 @@
 #!/bin/bash
 
-# I'd recommend moving this script to /usr/bin/ so you can run it from anywhere.
-# Make sure to give it execute permissions with: chmod +x /usr/bin/GekkUp
+# GekkUp - EndeavourOS update script
+
+set -e
+
+# Parse --noconfirm flag
+NO_CONFIRM=false
+if [[ "$1" == "--noconfirm" ]]; then
+  NO_CONFIRM=true
+fi
 
 sudo -v
 
-# Keep alive
+# Keep sudo alive
 while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
-# This is what I use to update my EndeavourOS system, the script can be modified to suit your needs.
-
+echo "-----------------------------------"
 echo "Updating Flatpaks..."
+echo "-----------------------------------"
 flatpak update -y
 
-echo "Refreshing mirrors..."
+echo "-----------------------------------"
+echo "Refreshing package databases..."
+echo "-----------------------------------"
 yay -Syy --noconfirm
 
-echo "Updating packages..."
+if [[ "$NO_CONFIRM" == false ]]; then
+  echo "-----------------------------------"
+  echo "Checking for package updates..."
+  echo "-----------------------------------"
+  yay -Qu || echo "All packages are up to date."
+
+  echo
+  read -rp "Proceed with full system upgrade? [Y/n] " answer
+  answer="${answer,,}"
+  if [[ "$answer" =~ ^(n|no)$ ]]; then
+    echo "Update cancelled."
+    exit 0
+  fi
+fi
+
+echo "-----------------------------------"
+echo "Performing system upgrade..."
+echo "-----------------------------------"
 yay -Syu --noconfirm
+
+echo "-----------------------------------"
+echo "System update complete."
+echo "-----------------------------------"
